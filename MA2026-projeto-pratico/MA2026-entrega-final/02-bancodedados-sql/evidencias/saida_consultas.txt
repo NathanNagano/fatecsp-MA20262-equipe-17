@@ -1,0 +1,70 @@
+-- =============================================================
+-- recrutamento_consultas.sql -- consultas analíticas (Etapa IV)
+-- Cada consulta responde a uma pergunta de negócio da Proposta Técnica:
+-- "Qual a discrepância entre as tecnologias exigidas e o salário
+--  oferecido nas vagas de entrada (Júnior e Estágio)?"
+-- =============================================================
+-- C1 -- Ranking: as tecnologias principais mais exigidas (até 10) e o salário médio
+-- Pergunta: que tecnologias dominam os anúncios e quanto pagam?
+nome_tecnologia | nivel_complexidade | vagas | salario_medio
+----------------+--------------------+-------+--------------
+Python          | Básica             | 3     | 11033.33     
+Java            | Média              | 3     | 5433.33      
+AWS             | Avançada           | 2     | 8650.0       
+React           | Média              | 2     | 4000.0       
+SQL             | Básica             | 2     | 3150.0       
+Go              | Avançada           | 1     | 4800.0       
+Power BI        | Básica             | 1     | 4200.0       
+Flutter         | Média              | 1     | 4000.0       
+C#              | Média              | 1     | 3200.0       
+(9 linha(s))
+
+-- a base tem 9 tecnologias em uso
+-- C2 -- Real x esperado: cada senioridade contra a faixa e o limite de techs
+-- Pergunta: o mercado respeita o teto de tecnologias recomendado por cargo?
+senioridade | vagas | media_techs | teto_techs | excesso_medio | salario_medio | faixa_mercado
+------------+-------+-------------+------------+---------------+---------------+--------------
+Estágio     | 2     | 1.0         | 2          | -1.0          | 2250.0        | 1500 - 2500  
+Júnior      | 12    | 4.33        | 3          | 1.33          | 5766.67       | 3000 - 5500  
+Pleno       | 1     | 4.0         | 5          | -1.0          | 8500.0        | 6000 - 9500  
+Sênior      | 1     | 5.0         | 8          | -3.0          | 15000.0       | 10000 - 18000
+(4 linha(s))
+
+-- C3 -- Razão por segmento: taxa de "Falso Júnior" por canal de divulgação
+-- Pergunta: em que canais as vagas Júnior mais inflam os requisitos?
+canal_divulgacao | vagas_junior | falso_junior | taxa_pct
+-----------------+--------------+--------------+---------
+Catho            | 1            | 1            | 100.0   
+Glassdoor        | 1            | 1            | 100.0   
+InfoJobs         | 2            | 1            | 50.0    
+LinkedIn         | 5            | 2            | 40.0    
+Gupy             | 3            | 1            | 33.3    
+(5 linha(s))
+
+-- C4 -- Evolução no tempo: vagas e "Falso Júnior" por mês (usa o calendário)
+-- Pergunta: o fenômeno cresce ao longo do semestre?
+ano_mes | nome_mes  | vagas | falso_junior | media_techs
+--------+-----------+-------+--------------+------------
+2026-01 | janeiro   | 4     | 2            | 3.5        
+2026-02 | fevereiro | 3     | 1            | 4.67       
+2026-03 | março     | 5     | 2            | 4.6        
+2026-04 | abril     | 4     | 1            | 3.0        
+(4 linha(s))
+
+-- C5 -- Exceções (HAVING): empresas com mais de uma vaga "Falso Júnior"
+-- Pergunta: que empresas reincidem na inflação de requisitos?
+nome_empresa  | setor      | vagas_falso_junior | media_techs | salario_medio
+--------------+------------+--------------------+-------------+--------------
+Mercado Livre | E-commerce | 2                  | 5.0         | 4300.0       
+(1 linha(s))
+
+-- C6 -- Qualidade da base: motivos de rejeição da Etapa 2
+motivo_rejeicao                             | linhas
+--------------------------------------------+-------
+Data inexistente no calendário (31/02/2026) | 1     
+Empresa sem correspondência oficial         | 1     
+Quantidade de tecnologias igual a zero      | 1     
+Quantidade de tecnologias nula              | 1     
+Tecnologia não cadastrada ('Phyton')        | 1     
+(5 linha(s))
+

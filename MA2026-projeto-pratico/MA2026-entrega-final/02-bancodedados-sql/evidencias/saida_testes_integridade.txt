@@ -1,0 +1,22 @@
+== Teste 1: carga reexecutável (carga.sql 2x, mesmos números)
+antes : [16, 5, 4, 15, 15, 181]
+depois: [16, 5, 4, 15, 15, 181] (vaga, rejeitada, cargo, tecnologia, empresa, calendario)
+
+== Teste 2: o banco IMPÕE as regras (cada INSERT abaixo deve ser recusado)
+[RECUSADO] qtd_tecnologias = 0 (D5): CHECK constraint failed: ck_vaga_qtd
+[RECUSADO] salário negativo: CHECK constraint failed: ck_vaga_salario
+[RECUSADO] modalidade inválida: CHECK constraint failed: ck_vaga_modalidade
+[RECUSADO] empresa inexistente (FK): FOREIGN KEY constraint failed
+[RECUSADO] data fora do calendário 31/02 (FK): FOREIGN KEY constraint failed
+[RECUSADO] ID duplicado (PK): UNIQUE constraint failed: vaga.id_vaga
+[RECUSADO] flag inválida: CHECK constraint failed: ck_vaga_flag
+
+linhas em vaga após os testes: 16 (esperado 16)
+
+== Estrutura criada (sqlite_master)
+table (12): calendario, cargo, cotacao_dia, empresa, stg_cargo, stg_empresa, stg_rejeitados, stg_tecnologia, stg_vagas, tecnologia, vaga, vaga_rejeitada
+index (5): ix_calendario_mes, ix_vaga_cargo_data, ix_vaga_data, ix_vaga_empresa, ix_vaga_tech
+view  (6): dim_cargo, dim_empresa, dim_tecnologia, dim_tempo, fato_rejeitadas, fato_vagas
+PRAGMA foreign_keys = 1
+calendário: dias=181, fins de semana=52, feriados=6
+fato_vagas: linhas=16, soma salários=97200
