@@ -1,0 +1,135 @@
+// =============================================================
+// medidas_finais.dax -- Etapa V (Power BI)
+// Projeto: Painel de Decisão para Recrutamento de Entrada (Falso Júnior)
+// ILP590 -- Fatec São Paulo -- Equipe 17
+//
+// Formato de consulta DAX (DEFINE MEASURE): cole na Exibição de Consulta DAX
+// do Power BI Desktop e execute (F5). A consulta final mostra os KPIs da rede.
+// Para gravar as medidas no modelo, use "Atualizar modelo com alterações"
+// (ou crie cada uma na tabela _Medidas com Nova medida).
+//
+// Origem: medidas da Etapa III (medidas_recrutamento.dax), com
+//   fVagas -> fato_vagas, dCargo -> dim_cargo, dCalendario -> dim_tempo
+// (views da Etapa IV). Regra do projeto: Falso Júnior = Cod_Cargo = CARG-JR
+// e Qtd_Tecnologias > 3.
+//
+// Observação: na Etapa III as medidas "Júnior" usavam RELATED() dentro de
+// CALCULATE, o que não funciona como filtro. Aqui o filtro é feito direto
+// na coluna da dimensão (dim_cargo[senioridade]).
+// =============================================================
+DEFINE
+    // ---------- 01 Volume e salário ----------
+    MEASURE '_Medidas'[Total de Vagas] = COUNTROWS ( fato_vagas )
+    MEASURE '_Medidas'[Salário Médio] = AVERAGE ( fato_vagas[salario_oferecido] )
+    MEASURE '_Medidas'[Média Techs] = AVERAGE ( fato_vagas[qtd_tecnologias] )
+    MEASURE '_Medidas'[Salário por Tecnologia] = DIVIDE ( [Salário Médio], [Média Techs] )
+
+    // ---------- 02 Entrada (Júnior) ----------
+    MEASURE '_Medidas'[Vagas Júnior] =
+        CALCULATE ( COUNTROWS ( fato_vagas ), dim_cargo[senioridade] = "Júnior" )
+    MEASURE '_Medidas'[Salário Médio Júnior] =
+        CALCULATE ( [Salário Médio], dim_cargo[senioridade] = "Júnior" )
+    MEASURE '_Medidas'[Média Techs Júnior] =
+        CALCULATE ( [Média Techs], dim_cargo[senioridade] = "Júnior" )
+    MEASURE '_Medidas'[Salário Mediano Júnior] =
+        CALCULATE ( MEDIAN ( fato_vagas[salario_oferecido] ), dim_cargo[senioridade] = "Júnior" )
+
+    // ---------- 03 Falso Júnior (regra do projeto) ----------
+    MEASURE '_Medidas'[Vagas Falso Júnior] =
+        CALCULATE (
+            COUNTROWS ( fato_vagas ),
+            dim_cargo[cod_cargo] = "CARG-JR",
+            fato_vagas[qtd_tecnologias] > 3
+        )
+    MEASURE '_Medidas'[Taxa Falso Júnior] =
+        DIVIDE ( [Vagas Falso Júnior], [Vagas Júnior] )
+    MEASURE '_Medidas'[Cor Taxa FJ] =
+        VAR p = [Taxa Falso Júnior]
+        RETURN SWITCH ( TRUE (),
+            ISBLANK ( p ), "#BDBDBD",
+            p >= 0.5,      "#B20000",
+            p >= 0.3,      "#F9A825",
+                           "#2E7D32" )
+    MEASURE '_Medidas'[Salário Médio Falso Júnior] =
+        CALCULATE ( [Salário Médio], dim_cargo[cod_cargo] = "CARG-JR", fato_vagas[qtd_tecnologias] > 3 )
+    MEASURE '_Medidas'[Média Techs Falso Júnior] =
+        CALCULATE ( [Média Techs], dim_cargo[cod_cargo] = "CARG-JR", fato_vagas[qtd_tecnologias] > 3 )
+    MEASURE '_Medidas'[Salário Médio Júnior Dentro do Limite] =
+        CALCULATE ( [Salário Médio], dim_cargo[cod_cargo] = "CARG-JR", fato_vagas[qtd_tecnologias] <= 3 )
+    MEASURE '_Medidas'[Média Techs Júnior Dentro do Limite] =
+        CALCULATE ( [Média Techs], dim_cargo[cod_cargo] = "CARG-JR", fato_vagas[qtd_tecnologias] <= 3 )
+
+    // ---------- 04 Real x esperado ----------
+    MEASURE '_Medidas'[Teto de Techs] = MAX ( dim_cargo[max_techs_recomendado] )
+    MEASURE '_Medidas'[Excesso Médio de Techs] = AVERAGE ( fato_vagas[excesso_techs] )
+    MEASURE '_Medidas'[Vagas Acima da Faixa] =
+        CALCULATE ( COUNTROWS ( fato_vagas ), fato_vagas[situacao_salarial] = "Acima da faixa" )
+    MEASURE '_Medidas'[Vagas Abaixo da Faixa] =
+        CALCULATE ( COUNTROWS ( fato_vagas ), fato_vagas[situacao_salarial] = "Abaixo da faixa" )
+
+    // ---------- 05 Tempo ----------
+    MEASURE '_Medidas'[Vagas Mês Anterior] =
+        CALCULATE ( [Total de Vagas], DATEADD ( dim_tempo[data], -1, MONTH ) )
+    MEASURE '_Medidas'[Cresc. MoM %] =
+        VAR Atual = [Total de Vagas]
+        VAR Anterior = [Vagas Mês Anterior]
+        RETURN IF ( NOT ISBLANK ( Atual ), DIVIDE ( Atual - Anterior, Anterior ) )
+    MEASURE '_Medidas'[Falso Júnior Acumulado] =
+        CALCULATE (
+            [Vagas Falso Júnior],
+            FILTER ( ALL ( dim_tempo[data] ), dim_tempo[data] <= MAX ( dim_tempo[data] ) )
+        )
+
+    // ---------- 06 Fator externo: câmbio (API AwesomeAPI, Etapa 6) ----------
+    // dim_cotacao não se liga ao calendário: a cotação acompanha qualquer filtro do painel
+    // pelas chaves de data das vagas visíveis (TREATAS), como a temperatura no guia (Seção 5.8).
+    MEASURE '_Medidas'[Cotação Média] =
+        VAR ChavesComVaga = VALUES ( fato_vagas[chave_cambio] )
+        RETURN
+            CALCULATE (
+                AVERAGE ( dim_cotacao[cotacao_venda] ),
+                TREATAS ( ChavesComVaga, dim_cotacao[chave_cambio] )
+            )
+    MEASURE '_Medidas'[Salário Médio em Moeda Estrangeira] =
+        DIVIDE ( [Salário Médio], [Cotação Média] )
+    MEASURE '_Medidas'[Salário Médio Júnior em Moeda Estrangeira] =
+        DIVIDE ( [Salário Médio Júnior], [Cotação Média] )
+    MEASURE '_Medidas'[Dias com Cotação] = COUNTROWS ( ALL ( dim_cotacao ) )
+    MEASURE '_Medidas'[Aviso Câmbio] =
+        IF ( [Dias com Cotação] = 0,
+             "Cotações ainda não carregadas (API - Etapa 6): visuais de câmbio ficam em branco" )
+
+    // ---------- 07 Rótulos dinâmicos ----------
+    MEASURE '_Medidas'[Período Selecionado] =
+        IF ( ISFILTERED ( dim_tempo ),
+             FORMAT ( MIN ( dim_tempo[data] ), "dd/mm/yyyy" ) & " a " &
+             FORMAT ( MAX ( dim_tempo[data] ), "dd/mm/yyyy" ),
+             "Jan a Abr/2026 (todas as vagas)" )
+    MEASURE '_Medidas'[Título Executiva] =
+        "De cada " & FORMAT ( [Vagas Júnior], "0" ) & " vagas Júnior, " &
+        FORMAT ( [Vagas Falso Júnior], "0" ) & " exigem mais de 3 tecnologias ("
+        & FORMAT ( [Taxa Falso Júnior], "0.0%" ) & ")"
+
+    // ---------- 08 Conferência (devem dar 0; a de cotação só zera depois da API) ----------
+    MEASURE '_Medidas'[Conf FJ Regra x Flag] =
+        [Vagas Falso Júnior] - SUM ( fato_vagas[is_falso_junior] )
+    MEASURE '_Medidas'[Conf Vagas sem Cargo] =
+        COUNTROWS ( FILTER ( fato_vagas, ISBLANK ( RELATED ( dim_cargo[cod_cargo] ) ) ) )
+    MEASURE '_Medidas'[Conf Vagas sem Tecnologia] =
+        COUNTROWS ( FILTER ( fato_vagas, ISBLANK ( RELATED ( dim_tecnologia[cod_tech] ) ) ) )
+    MEASURE '_Medidas'[Conf Vagas sem Empresa] =
+        COUNTROWS ( FILTER ( fato_vagas, ISBLANK ( RELATED ( dim_empresa[cod_empresa] ) ) ) )
+    MEASURE '_Medidas'[Conf Vagas sem Data no Calendário] =
+        COUNTROWS ( FILTER ( fato_vagas, ISBLANK ( RELATED ( dim_tempo[data] ) ) ) )
+    MEASURE '_Medidas'[Conf Vagas sem Cotação] =
+        COUNTROWS ( FILTER ( fato_vagas, ISBLANK ( RELATED ( dim_cotacao[chave_cambio] ) ) ) )
+
+EVALUATE
+ROW (
+    "total_vagas",        [Total de Vagas],
+    "salario_medio",      ROUND ( [Salário Médio], 2 ),
+    "media_techs",        ROUND ( [Média Techs], 4 ),
+    "vagas_junior",       [Vagas Júnior],
+    "vagas_falso_junior", [Vagas Falso Júnior],
+    "taxa_falso_junior",  ROUND ( 100 * [Taxa Falso Júnior], 1 )
+)
