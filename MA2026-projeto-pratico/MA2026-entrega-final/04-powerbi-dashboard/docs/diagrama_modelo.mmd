@@ -1,0 +1,56 @@
+erDiagram
+    dim_cargo      ||--o{ fato_vagas : "R1 cod_cargo"
+    dim_tecnologia ||--o{ fato_vagas : "R2 cod_tech"
+    dim_empresa    ||--o{ fato_vagas : "R3 cod_empresa"
+    dim_tempo      ||--o{ fato_vagas : "R4 data"
+    dim_cotacao    ||--o{ fato_vagas : "R5 chave_cambio (dados da API na Etapa 6)"
+    fato_vagas {
+        text id_vaga PK
+        date data FK
+        text cod_empresa FK
+        text cod_cargo FK
+        text cod_tech FK
+        int qtd_tecnologias
+        currency salario_oferecido
+        text modalidade
+        text canal_divulgacao
+        int is_falso_junior
+        int excesso_techs
+        text situacao_salarial
+        text turno
+        text chave_cambio FK
+    }
+    dim_cargo {
+        text cod_cargo PK
+        text senioridade
+        currency salario_piso
+        currency salario_teto
+        int max_techs_recomendado
+    }
+    dim_tecnologia {
+        text cod_tech PK
+        text nome_tecnologia
+        text categoria
+        text nivel_complexidade
+    }
+    dim_empresa {
+        text cod_empresa PK
+        text nome_empresa
+        text porte
+        text setor
+        text estado
+    }
+    dim_tempo {
+        date data PK
+        text nome_mes
+        text ano_mes
+        text trimestre
+        text feriado
+    }
+    dim_cotacao {
+        text chave_cambio PK
+        text moeda
+        date data_ref
+        currency cotacao_compra
+        currency cotacao_venda
+    }

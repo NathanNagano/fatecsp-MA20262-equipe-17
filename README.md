@@ -39,6 +39,17 @@ Banco relacional **SQLite** (`recrutamento.db`) construído a partir das tabelas
 - **Conferência:** 16 vagas válidas + 5 rejeitadas = 21 lidas (diferença 0); integridade referencial sem violações; 7 inserções inválidas recusadas pelo banco. Evidências em `evidencias/` (PDF e saídas).
 - **Ponto de atenção:** quatro indicadores Júnior do painel da Etapa 3 divergem dos dados (12 vagas Júnior, 4,33 techs, R$ 5.766,67 e 50,0%); detalhes no README da pasta.
 
+### 📊 Etapa V – Dashboard Power BI (Entrega Final)
+
+Pacote de construção do painel em `MA2026-projeto-pratico/MA2026-entrega-final/04-powerbi-dashboard/`, lendo o banco da Etapa IV por ODBC:
+
+- **Power Query (M):** parâmetros `pConexaoODBC` e `pMoeda`, 6 consultas e diagnóstico `tst_Conexao`, com tipos em `en-US`; alternativa sem ODBC em `m/alternativa_csv/`.
+- **Modelo estrela:** `fato_vagas` ligada a `dim_cargo`, `dim_tecnologia`, `dim_empresa`, `dim_tempo` e `dim_cotacao` (fator externo da API, Etapa 6): 5 relacionamentos N:1, direção única.
+- **Medidas DAX (35):** volume e salário, Júnior, *Falso Júnior* (regra `CARG-JR` e mais de 3 tecnologias), real × esperado, tempo, câmbio, rótulos dinâmicos e medidas `Conf`.
+- **Validação:** 9 consultas DAX que reproduzem as consultas SQL C1–C5, com gabarito gerado por execução SQL real.
+- **Painel:** 3 páginas (Visão Executiva, Tecnologias & Salário, Câmbio & Salário), dica de ferramenta, detalhe da vaga e página de conferência; roteiro em `docs/roteiro_painel.md`.
+- **Pendente:** montar e salvar o `.pbix`, exportar o PDF, capturar as telas e executar o `validacao.dax` no Power BI Desktop; a página de câmbio só terá dados depois da API (Etapa 6).
+
 ---
 
 ## 🎯 Tema e Problema de Negócio

@@ -1,0 +1,16 @@
+cod_empresa,nome_empresa,porte,setor,estado
+EMP-01,Nubank,Grande Empresa,Fintech,SP
+EMP-02,Itaú Unibanco,Grande Empresa,Bancário,SP
+EMP-03,Mercado Livre,Grande Empresa,E-commerce,SP
+EMP-04,TOTVS,Grande Empresa,Software/ERP,SP
+EMP-05,Stone,Grande Empresa,Pagamentos,RJ
+EMP-06,Zup Innovation,Média Empresa,Consultoria TI,MG
+EMP-07,PicPay,Grande Empresa,Fintech,SP
+EMP-08,Ambev Tech,Grande Empresa,Bens de Consumo,SP
+EMP-09,Accenture,Grande Empresa,Consultoria TI,SP
+EMP-10,C&A Modas,Grande Empresa,Varejo,SP
+EMP-11,Localiza,Grande Empresa,Mobilidade,MG
+EMP-12,iFood,Grande Empresa,Food Delivery,SP
+EMP-13,QuintoAndar,Unicórnio,Proptech,SP
+EMP-14,CI&T,Grande Empresa,Consultoria TI,SP
+EMP-15,BairesDev,Internacional,Outsourcing,EUA/SP

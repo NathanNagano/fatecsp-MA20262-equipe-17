@@ -1,0 +1,113 @@
+// =============================================================
+// validacao.dax -- Etapa V (Power BI) -- Equipe 17
+// Execute UMA consulta por vez na Exibição de Consulta DAX (selecione o bloco e F5).
+// Pré-requisito: as medidas de medidas_finais.dax já estão gravadas no modelo.
+// Compare cada resultado com evidencias/valores_esperados_sql.txt, que foi gerado
+// pelas consultas SQL da Etapa IV (recrutamento_consultas.sql) sobre as mesmas views.
+// Critério de aceite: todas as diferenças = 0.
+// =============================================================
+
+// V-K) Totais e KPIs da rede (= resumo geral da conferência K4 da Etapa IV)
+EVALUATE
+ROW (
+    "total_vagas",        [Total de Vagas],
+    "salario_medio",      ROUND ( [Salário Médio], 2 ),
+    "media_techs",        ROUND ( [Média Techs], 4 ),
+    "vagas_junior",       [Vagas Júnior],
+    "salario_medio_jr",   ROUND ( [Salário Médio Júnior], 2 ),
+    "media_techs_jr",     ROUND ( [Média Techs Júnior], 2 ),
+    "vagas_falso_junior", [Vagas Falso Júnior],
+    "taxa_falso_junior",  ROUND ( 100 * [Taxa Falso Júnior], 1 )
+)
+
+// V-C1) Ranking de tecnologias principais (= C1). Empates: confira o conteúdo, não a ordem.
+EVALUATE
+TOPN (
+    10,
+    SUMMARIZECOLUMNS (
+        dim_tecnologia[nome_tecnologia],
+        dim_tecnologia[nivel_complexidade],
+        "vagas",         [Total de Vagas],
+        "salario_medio", ROUND ( [Salário Médio], 2 )
+    ),
+    [vagas], DESC,
+    dim_tecnologia[nome_tecnologia], ASC
+)
+ORDER BY [vagas] DESC, dim_tecnologia[nome_tecnologia]
+
+// V-C2) Real x esperado por senioridade (= C2)
+EVALUATE
+SUMMARIZECOLUMNS (
+    dim_cargo[senioridade],
+    "vagas",         [Total de Vagas],
+    "media_techs",   ROUND ( [Média Techs], 2 ),
+    "teto_techs",    [Teto de Techs],
+    "excesso_medio", ROUND ( [Excesso Médio de Techs], 2 ),
+    "salario_medio", ROUND ( [Salário Médio], 2 )
+)
+ORDER BY dim_cargo[senioridade]
+
+// V-C3) Taxa de Falso Júnior por canal de divulgação (= C3)
+EVALUATE
+SUMMARIZECOLUMNS (
+    fato_vagas[canal_divulgacao],
+    "vagas_junior", [Vagas Júnior],
+    "falso_junior", [Vagas Falso Júnior],
+    "taxa_pct",     ROUND ( 100 * [Taxa Falso Júnior], 1 )
+)
+ORDER BY [taxa_pct] DESC, [vagas_junior] DESC, fato_vagas[canal_divulgacao]
+
+// V-C4) Evolução mensal (= C4). Maio e junho não aparecem: não há vagas nesses meses.
+EVALUATE
+SUMMARIZECOLUMNS (
+    dim_tempo[ano_mes],
+    dim_tempo[nome_mes],
+    "vagas",        [Total de Vagas],
+    "falso_junior", [Vagas Falso Júnior] + 0,
+    "media_techs",  ROUND ( [Média Techs], 2 )
+)
+ORDER BY dim_tempo[ano_mes]
+
+// V-C5) Empresas reincidentes: mais de uma vaga Falso Júnior (= C5, HAVING)
+EVALUATE
+FILTER (
+    SUMMARIZECOLUMNS (
+        dim_empresa[nome_empresa],
+        dim_empresa[setor],
+        "vagas_falso_junior", [Vagas Falso Júnior],
+        "media_techs",   ROUND ( CALCULATE ( [Média Techs],    fato_vagas[is_falso_junior] = 1 ), 2 ),
+        "salario_medio", ROUND ( CALCULATE ( [Salário Médio],  fato_vagas[is_falso_junior] = 1 ), 2 )
+    ),
+    [vagas_falso_junior] > 1
+)
+
+// V-FJ) Falso Júnior x Júnior dentro do limite (contraste do painel; sem equivalente direto em C1-C6)
+EVALUATE
+ROW (
+    "vagas_fj",          [Vagas Falso Júnior],
+    "salario_medio_fj",  ROUND ( [Salário Médio Falso Júnior], 2 ),
+    "media_techs_fj",    ROUND ( [Média Techs Falso Júnior], 2 ),
+    "vagas_jr_ok",       CALCULATE ( [Vagas Júnior] - [Vagas Falso Júnior] ),
+    "salario_medio_ok",  ROUND ( [Salário Médio Júnior Dentro do Limite], 2 ),
+    "media_techs_ok",    ROUND ( [Média Techs Júnior Dentro do Limite], 2 ),
+    "salario_mediano_jr", [Salário Mediano Júnior]
+)
+
+// V-CAMBIO) Fator externo: sem a API, dim_cotacao está vazia (Dias com Cotação = 0)
+EVALUATE
+ROW (
+    "dias_com_cotacao",   [Dias com Cotação],
+    "cotacao_media",      [Cotação Média],
+    "salario_em_moeda",   [Salário Médio em Moeda Estrangeira]
+)
+
+// V-CONF) Conferência do modelo: tudo deve ser 0 (a de cotação só zera com a API carregada)
+EVALUATE
+ROW (
+    "conf_fj_regra_x_flag",   [Conf FJ Regra x Flag],
+    "conf_vagas_sem_cargo",   [Conf Vagas sem Cargo],
+    "conf_vagas_sem_tech",    [Conf Vagas sem Tecnologia],
+    "conf_vagas_sem_empresa", [Conf Vagas sem Empresa],
+    "conf_vagas_sem_data",    [Conf Vagas sem Data no Calendário],
+    "conf_vagas_sem_cotacao", [Conf Vagas sem Cotação]
+)
