@@ -1,6 +1,7 @@
 # 02 – Banco de Dados & SQL (Etapa IV)
 
 **Disciplina:** Microinformática Aplicada (ILP590) – FATEC São Paulo • **Equipe 17**
+**Integrantes:** Nathan Campos Nagano, Matheus Guides Rubim Fonseca e João Wictor Leles Santos (RA 22106946 – Etapa IV)
 **Projeto:** Painel de Decisão para Recrutamento de Entrada (O Fenômeno do "Falso Júnior")
 **SGBD:** SQLite 3 (sintaxe compatível com MySQL 8) • **Entrega final (N2):** 27/11/2026
 
