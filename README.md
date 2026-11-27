@@ -25,6 +25,19 @@ Repositório oficial do **Projeto Evolutivo de Microinformática Aplicada (ILP59
 | :--- | :--- | :--- |
 | **0020482511012** | **Nathan Campos Nagano** (Líder) | Gerente do Projeto, Eng. de Dados / Excel, e Modelagem Power Query / DAX |
 | **0020482511028** | **Matheus Guides Rubim Fonseca** (Líder) | Automação VBA & APIs, Banco de Dados SQL / Power BI, e QA (Garantia de Qualidade) |
+| **22106946** | **João Wictor Leles Santos** | Banco de Dados SQL (Etapa IV): modelo relacional, scripts DDL/carga, consultas, views e conferência |
+
+
+### 🗄️ Etapa IV – Banco de Dados & SQL (Entrega Final)
+
+Banco relacional **SQLite** (`recrutamento.db`) construído a partir das tabelas tratadas na Etapa 2 (Power Query), em `MA2026-projeto-pratico/MA2026-entrega-final/02-bancodedados-sql/`:
+
+- **Modelo e DDL:** tabelas `cargo`, `tecnologia`, `empresa`, `calendario`, fato `vaga` e `vaga_rejeitada`, com chaves primárias, estrangeiras e `CHECK` nomeados; tabela `cotacao_dia` criada vazia para a API da Etapa VI.
+- **Carga:** a partir de CSVs exportados da Etapa 2, via tabelas de *staging*; script reexecutável, calendário de 181 dias gerado em SQL.
+- **Consultas analíticas (C1–C6):** ranking de tecnologias, real × esperado por senioridade, taxa de *Falso Júnior* por canal, evolução mensal, empresas reincidentes e motivos de rejeição.
+- **Views em estrela** para o Power BI (`dim_*`, `fato_vagas`, `fato_rejeitadas`).
+- **Conferência:** 16 vagas válidas + 5 rejeitadas = 21 lidas (diferença 0); integridade referencial sem violações; 7 inserções inválidas recusadas pelo banco. Evidências em `evidencias/` (PDF e saídas).
+- **Ponto de atenção:** quatro indicadores Júnior do painel da Etapa 3 divergem dos dados (12 vagas Júnior, 4,33 techs, R$ 5.766,67 e 50,0%); detalhes no README da pasta.
 
 ---
 

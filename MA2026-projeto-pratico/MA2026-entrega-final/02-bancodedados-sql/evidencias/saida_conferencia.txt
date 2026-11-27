@@ -1,0 +1,60 @@
+-- =============================================================
+-- recrutamento_conferencia.sql -- o banco reproduz as Etapas 2 e 3?
+-- Regra de ouro: a coluna "diferenca" tem de ser 0 (K1 e K3).
+-- K4 compara com o painel da Etapa 3 e deve ser lido com atenção.
+-- =============================================================
+-- K1) Batimento staging (CSV da Etapa 2) x tabelas finais
+indicador                    | staging | banco | diferenca
+-----------------------------+---------+-------+----------
+Vagas válidas                | 16      | 16    | 0        
+Soma de tecnologias exigidas | 63      | 63    | 0        
+Soma dos salários oferecidos | 97200   | 97200 | 0        
+Cargos                       | 4       | 4     | 0        
+Tecnologias                  | 15      | 15    | 0        
+Empresas                     | 15      | 15    | 0        
+Rejeitadas                   | 5       | 5     | 0        
+Dias no calendário           | 181     | 181   | 0        
+(8 linha(s))
+
+-- K1b) Reconciliação da Etapa 2: lidas (21) = válidas + rejeitadas
+indicador                    | esperado_etapa2 | banco | diferenca
+-----------------------------+-----------------+-------+----------
+Lidas = válidas + rejeitadas | 21              | 21    | 0        
+(1 linha(s))
+
+-- K2) Integridade referencial: não deve devolver NENHUMA linha
+table | rowid | parent | fkid
+------+-------+--------+-----
+(0 linha(s))
+
+-- K3) Órfãs e inconsistências, uma a uma: todas devem ser 0
+teste                                                      | ocorrencias
+-----------------------------------------------------------+------------
+Vagas sem cargo                                            | 0          
+Vagas sem tecnologia                                       | 0          
+Vagas sem empresa                                          | 0          
+Vagas fora do calendário                                   | 0          
+Flag Falso Júnior divergente da regra (Júnior e techs > 3) | 0          
+IDs rejeitados que também estão em vaga                    | 0          
+(6 linha(s))
+
+-- K4) Batimento com a Etapa 3 (painel Validacao_Recrutamento do .xlsx)
+-- Os valores de referência abaixo foram LIDOS do painel da Etapa 3.
+indicador                            | etapa3  | banco   | diferenca
+-------------------------------------+---------+---------+----------
+Total de vagas                       | 16      | 16      | 0.0      
+Salário médio geral                  | 6075    | 6075.0  | 0.0      
+Média de techs geral                 | 3.9375  | 3.9375  | 0.0      
+Vagas Falso Júnior                   | 6       | 6       | 0        
+Vagas Júnior (denominador da taxa)   | 11      | 12      | 1        
+Média de techs Júnior                | 4.54    | 4.33    | -0.21    
+Salário médio Júnior                 | 5736.36 | 5766.67 | 30.31    
+Taxa de requisitos inflacionados (%) | 54.5    | 50.0    | -4.5     
+(8 linha(s))
+
+-- K5) Índice em uso (plano de execução de uma consulta por cargo e data)
+id | parent | notused | detail                                                                        
+---+--------+---------+-------------------------------------------------------------------------------
+3  | 0      | 50      | SEARCH vaga USING INDEX ix_vaga_cargo_data (cod_cargo=? AND data_publicacao>?)
+(1 linha(s))
+

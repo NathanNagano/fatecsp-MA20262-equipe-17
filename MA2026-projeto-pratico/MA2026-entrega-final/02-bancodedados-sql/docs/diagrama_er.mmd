@@ -1,0 +1,39 @@
+erDiagram
+    cargo ||--o{ vaga : "cod_cargo"
+    tecnologia ||--o{ vaga : "cod_tech"
+    empresa ||--o{ vaga : "cod_empresa"
+    calendario ||--o{ vaga : "data_publicacao"
+    cargo { varchar cod_cargo PK
+            varchar senioridade
+            decimal salario_piso
+            decimal salario_teto
+            int max_techs_recomendado }
+    tecnologia { varchar cod_tech PK
+                 varchar nome_tecnologia
+                 varchar categoria
+                 varchar nivel_complexidade }
+    empresa { varchar cod_empresa PK
+              varchar nome_empresa
+              varchar porte
+              varchar setor
+              varchar estado }
+    calendario { date data PK
+                 int ano
+                 int mes
+                 varchar ano_mes
+                 varchar feriado }
+    vaga { varchar id_vaga PK
+           date data_publicacao FK
+           varchar cod_empresa FK
+           varchar cod_cargo FK
+           varchar cod_tech FK
+           int qtd_tecnologias
+           decimal salario_oferecido
+           varchar modalidade
+           varchar canal_divulgacao
+           varchar flag_falso_junior }
+    vaga_rejeitada { varchar id_vaga PK
+                     varchar motivo_rejeicao }
+    cotacao_dia { char moeda PK
+                  date data_ref PK
+                  decimal cotacao_venda }

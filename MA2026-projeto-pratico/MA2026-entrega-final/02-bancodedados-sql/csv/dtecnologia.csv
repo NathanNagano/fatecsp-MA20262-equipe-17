@@ -1,0 +1,16 @@
+Cod_Tech,Nome_Tecnologia,Categoria,Nivel_Complexidade
+TEC-01,Python,Linguagem,Básica
+TEC-02,SQL,Banco de Dados,Básica
+TEC-03,React,Framework,Média
+TEC-04,Java,Linguagem,Média
+TEC-05,Power BI,BI & Analytics,Básica
+TEC-06,Node.js,Framework,Média
+TEC-07,Excel,Produtividade,Básica
+TEC-08,C#,Linguagem,Média
+TEC-09,Flutter,Mobile,Média
+TEC-10,TypeScript,Linguagem,Média
+TEC-11,AWS,Cloud & DevOps,Avançada
+TEC-12,Docker,DevOps,Avançada
+TEC-13,Go,Linguagem,Avançada
+TEC-14,Kubernetes,DevOps,Avançada
+TEC-15,Machine Learning,IA & Ciência de Dados,Avançada
