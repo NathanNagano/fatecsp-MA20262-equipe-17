@@ -1,0 +1,5 @@
+Cod_Cargo,Senioridade,Salario_Piso,Salario_Teto,Max_Techs_Recomendado,Descricao
+CARG-EST,Estágio,1500,2500,2,Formação básica / acadêmica
+CARG-JR,Júnior,3000,5500,3,Início de carreira / até 3 tecnologias essenciais
+CARG-PL,Pleno,6000,9500,5,Autonomia técnica consolidada
+CARG-SR,Sênior,10000,18000,8,Liderança e arquitetura de soluções
